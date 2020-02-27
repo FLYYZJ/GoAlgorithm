@@ -76,3 +76,25 @@ func TestSkewLeanHeap(t *testing.T) {
 		}
 	}
 }
+
+func TestBinomialHeap(t *testing.T) {
+	var binomialheap binaryheap.BinomialHeap
+	var h = [...]int{50, 30, 10, 20, 40, 60, 70, 80, 90}
+	for _, v := range h {
+		binomialheap.Insert(v)
+	}
+	binomialheap.PrintHeap()
+	minData, _ := binomialheap.GetMin()
+	if minData != 10 {
+		t.Errorf("期望值为 10, 实际获得为 %d", minData)
+	}
+	minData, _ = binomialheap.PopMin()
+	if minData != 10 {
+		t.Errorf("期望值为 10, 实际获得为 %d", minData)
+	}
+	minData, _ = binomialheap.GetMin()
+	if minData != 20 {
+		t.Errorf("期望值为 20, 实际获得为 %d", minData)
+	}
+	binomialheap.PrintHeap()
+}

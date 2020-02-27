@@ -49,6 +49,11 @@ func (bih *BinomialHeap) link(child *binomialNode, root *binomialNode) {
 	root.degree++
 }
 
+// Union 合并两个二项堆
+func (bih *BinomialHeap) Union(other *BinomialHeap) {
+	bih.root = bih.union(bih.root, other.root)
+}
+
 // 合并操作主程序，删除/插入操作相关
 func (bih *BinomialHeap) union(h1 *binomialNode, h2 *binomialNode) *binomialNode {
 	var heap, prev_x, x, next_x *binomialNode // x当前节点
@@ -182,11 +187,13 @@ func (bih *BinomialHeap) increase(node *binomialNode, data int) {
 	var least *binomialNode
 	cur, child := node, node.lchild
 	for child != nil {
+		// 每个二项树都是最小堆
+		// 每次均在子节点及子节点的兄弟中选取最小节点进行替换
 		if cur.val > child.val {
 			least = child
 			for child.next != nil {
 				if least.val > child.next.val {
-					least = child.next
+					least = child.next // 找兄弟中的最小值
 				}
 				child = child.next
 			}
@@ -195,6 +202,69 @@ func (bih *BinomialHeap) increase(node *binomialNode, data int) {
 		} else {
 			child = child.next
 		}
+	}
+
+}
+
+// GetMin 获得最小值
+func (bih *BinomialHeap) GetMin() (int, error) {
+	if bih.root == nil {
+		fmt.Println("当期二项堆为空")
+		return -1, fmt.Errorf("heap is empty")
+	}
+	minNode := bih.getMinNode()
+	return minNode.val, nil
+}
+
+// 返回最小值对应的节点，以及其前缀
+func (bih *BinomialHeap) getMinNode() *binomialNode {
+	cur, minNode := bih.root, bih.root
+	for cur != nil {
+		if cur.val < minNode.val {
+			minNode = cur
+		}
+		cur = cur.next
+	}
+	return minNode
+}
+
+// PopMin 获得最小值，并删除这个节点
+func (bih *BinomialHeap) PopMin() (int, error) {
+	if bih.root == nil {
+		fmt.Println("当期二项堆为空")
+		return -1, fmt.Errorf("heap is empty")
+	}
+	minNode := bih.getMinNode()
+	result := minNode.val
+	bih.Remove(minNode.val)
+	return result, nil
+}
+
+// PrintHeap 输出heap
+func (bih *BinomialHeap) PrintHeap() {
+	if bih.root == nil {
+		fmt.Println("当期二项堆为空")
+	}
+	p, treeCount := bih.root, 1
+	for p != nil {
+		fmt.Printf("第 %d 二项树度为 %d, 根为 %d\n", treeCount, p.degree, p.val)
+		bih.printHeap(p.lchild, p, 1)
+		p = p.next
+	}
+
+}
+
+func (bih *BinomialHeap) printHeap(node *binomialNode, prev *binomialNode, direction int) {
+	for node != nil {
+		if direction == 1 {
+			fmt.Printf("\t节点%02d(度为 %02d) 为 %02d的子节点\n", node.val, node.degree, prev.val)
+		} else {
+			fmt.Printf("\t节点%02d(度为 %02d) 为 %02d的兄弟节点\n", node.val, node.degree, prev.val)
+		}
+		if node.lchild != nil {
+			bih.printHeap(node.lchild, node, 1)
+		}
+		prev, node, direction = node, node.next, 2
 	}
 
 }
