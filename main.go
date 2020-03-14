@@ -2,41 +2,46 @@ package main
 
 import "fmt"
 
-type ListNode struct {
-	Val  int
-	Next *ListNode
-}
-
 func main() {
-	var nums = []int{2, 5, 10, 1}
-	fmt.Println(mergeTwoLists(nums, 27))
+	res := lengthOfLIS([]int{2, 3, 4, 5, 1, 2, 3, 4, 1, 2, 3, 4, 5, 1, 2, 7, 8, 10, 1, 2, 11, 12})
+	fmt.Printf("%v\n", res)
 }
 
-func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
-	head := &ListNode{Val: 0, Next: nil}
-	p := head
-	p1, p2 := l1, l2
-	for p1 != nil && p2 != nil {
-		tmp := &ListNode{Val: 0, Next: nil}
-		p.Next = tmp
-		p = p.Next
-		if p1.Val < p2.Val {
-			tmp.Val = p1.Val
-			p1 = p1.Next
+func lengthOfLIS(nums []int) int {
+	if len(nums) <= 1 {
+		return len(nums)
+	}
+	dp := []int{}
+	dp = append(dp, nums[0])
+	for i := 1; i < len(nums); i++ {
+		index := binSearch(dp, nums[i])
+		if index < len(dp) {
+			dp[index] = nums[i]
 		} else {
-			tmp.Val = p2.Val
-			p2 = p2.Next
+			dp = append(dp, nums[i])
 		}
 	}
-	if p1 != nil {
-		tmp := &ListNode{Val: p1.Val, Next: nil}
-		p.Next, p1 = tmp, p1.Next
-		p = p.Next
+	return len(dp)
+}
+
+func binSearch(nums []int, target int) int { // 返回坐标
+	l, r := 0, len(nums)
+	mid := (l + r) / 2
+	for l < r {
+		if nums[mid] < target {
+			if mid+1 < r && nums[mid+1] > target {
+				return mid + 1
+			}
+			l = mid + 1
+		} else if nums[mid] > target {
+			if mid-1 >= 0 && nums[mid-1] < target {
+				return mid
+			}
+			r = mid
+		} else {
+			return mid
+		}
+		mid = (l + r) / 2
 	}
-	if p2 != nil {
-		tmp := &ListNode{Val: p2.Val, Next: nil}
-		p.Next, p2 = tmp, p2.Next
-		p = p.Next
-	}
-	return head.Next
+	return mid
 }
